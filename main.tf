@@ -26,7 +26,7 @@ resource "aws_subnet" "public-subnet" {
 # Define Public DNS
 resource "aws_subnet" "Private-subnet" {
  vpc_id = "${aws_vpc.main.id}"
- cidr_block = "${var.Private_subnet_cidr}"
+ cidr_block = "${var.private_subnet_cidr}"
  availability_zone = "us-east-1a"
  tags = {
  Name = "ELB-VPC Private Subnet"
@@ -124,11 +124,8 @@ resource "aws_autoscaling_group" "test" {
   max_size = 10
   load_balancers = ["${aws_elb.app.name}"]
   health_check_type = "ELB"
-
-  tags = {
-    Name = "webserver"
-  }
-
+  associate_public_ip_address = true
+  
 }
 
 resource "aws_elb" "app" {
