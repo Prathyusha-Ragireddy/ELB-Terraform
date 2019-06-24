@@ -13,7 +13,7 @@ tags = {
 }
 
 # Define Public DNS
-resource "AWS_subnet" "public-subnet" {
+resource "aws_subnet" "public-subnet" {
  vpc_id = "${aws_vpc.main.id}"
  cidr_block = "${var.public_subnet_cidr}"
  availability_zone = "us-east-1a"
@@ -24,7 +24,7 @@ resource "AWS_subnet" "public-subnet" {
 
 
 # Define Public DNS
-resource "AWS_subnet" "Private-subnet" {
+resource "aws_subnet" "Private-subnet" {
  vpc_id = "${aws_vpc.main.id}"
  cidr_block = "${var.Private_subnet_cidr}"
  availability_zone = "us-east-1a"
@@ -34,7 +34,7 @@ resource "AWS_subnet" "Private-subnet" {
 }
 
 # Define Internet Gateway
-resource "Aws_internet_gateway" "IGW" {
+resource "aws_internet_gateway" "IGW" {
 vpc_id = "${aws_vpc.main.id}"
 tags = {
 Name = "ELB-VPC IGW"
