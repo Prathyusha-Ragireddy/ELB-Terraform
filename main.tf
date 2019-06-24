@@ -101,7 +101,7 @@ resource "aws_security_group" "sgweb" {
 }
 # Define SSH key pair for our instances
 resource "aws_key_pair" "default" {
-  key_name = "vpctestkeypair"
+  key_name = "vpckeypair"
   public_key = "${file("${var.key_path}")}"
 }
 
