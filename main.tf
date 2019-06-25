@@ -1,19 +1,19 @@
-# Provider - Name of the cloud
+# Provider - which cloud i am using
 provider "aws" {
   region = "${var.aws_region}"
 }
 
-# Define VPC
+# Define our VPC
 resource "aws_vpc" "main" {
   cidr_block = "${var.vpc_cidr}"
   enable_dns_hostnames = true
 
   tags = {
-    Name = "VPC"
+    Name = "Test-VPC"
   }
 }
 
-# Define  public subnet
+# Define the public subnet
 resource "aws_subnet" "public-subnet" {
   vpc_id = "${aws_vpc.main.id}"
   cidr_block = "${var.public_subnet_cidr}"
@@ -21,7 +21,7 @@ resource "aws_subnet" "public-subnet" {
   map_public_ip_on_launch= true
 
   tags = {
-    Name = "VPC Public Subnet"
+    Name = "Test-VPC Public Subnet"
   }
 }
 
@@ -32,7 +32,7 @@ resource "aws_subnet" "private-subnet" {
   availability_zone = "${var.private_subnet_az}"
 
   tags = {
-    Name = "VPC Private Subnet"
+    Name = "Test-VPC Private Subnet"
   }
 }
 
@@ -41,7 +41,7 @@ resource "aws_internet_gateway" "IGW" {
   vpc_id = "${aws_vpc.main.id}"
 
   tags = {
-    Name = "VPC IGW"
+    Name = "Test-VPC IGW"
   }
 }
 
@@ -55,7 +55,7 @@ resource "aws_route_table" "public-RT" {
   }
 
   tags = {
-    Name = "VPC Public Subnet RT"
+    Name = "Test-VPC Public Subnet RT"
   }
 }
 
@@ -67,12 +67,19 @@ resource "aws_route_table_association" "public-RT" {
 
 # Define the security group for public subnet
 resource "aws_security_group" "sgweb" {
-  name = "vpc_web"
+  name = "vpc_test_web"
   description = "Allow incoming HTTP connections & SSH access"
 
   ingress {
     from_port = 80
     to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 443
+    to_port = 443
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -101,14 +108,32 @@ resource "aws_security_group" "sgweb" {
   vpc_id="${aws_vpc.main.id}"
 
   tags = {
-    Name = "ELB-SG-terraform"
+    Name = "Web Server SG"
   }
 }
 
+# Define the security group for private subnet
+resource "aws_security_group" "sgdb"{
+  name = "sg_test_web"
+  description = "Allow traffic from public subnet"
+
+  ingress {
+    from_port = 3306
+    to_port = 3306
+    protocol = "tcp"
+    cidr_blocks = ["${var.public_subnet_cidr}"]
+  }
+
+  vpc_id = "${aws_vpc.main.id}"
+
+  tags = {
+    Name = "DB SG"
+  }
+}
 
 # Define SSH key pair for our instances
 resource "aws_key_pair" "default" {
-  key_name = "terraform"
+  key_name = "vpctestkeypair"
   public_key = "${file("${var.key_path}")}"
 }
 
@@ -179,13 +204,13 @@ resource "aws_elb" "app" {
   connection_draining         = true
   connection_draining_timeout = 300
   tags = {
-    Name = "ELB-Classic"
+    Name = "test-elb-app"
     Type = "elb"
   }
 }
 
 resource "aws_security_group" "elb" {
-    name = "ElB-SG"
+    name = "test-elb"
     ingress {
         from_port   = 80
         to_port     = 80
@@ -206,6 +231,6 @@ resource "aws_security_group" "elb" {
     }
     vpc_id = "${aws_vpc.main.id}"
     tags = {
-        Name        = "ELB-security-group"
+        Name        = "test-elb-security-group"
     }
 }
