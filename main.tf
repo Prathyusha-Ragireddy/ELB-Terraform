@@ -78,13 +78,6 @@ resource "aws_security_group" "sgweb" {
   }
 
   ingress {
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
     from_port = -1
     to_port = -1
     protocol = "icmp"
@@ -112,28 +105,10 @@ resource "aws_security_group" "sgweb" {
   }
 }
 
-# Define the security group for private subnet
-resource "aws_security_group" "sgdb"{
-  name = "sg_test_web"
-  description = "Allow traffic from public subnet"
-
-  ingress {
-    from_port = 3306
-    to_port = 3306
-    protocol = "tcp"
-    cidr_blocks = ["${var.public_subnet_cidr}"]
-  }
-
-  vpc_id = "${aws_vpc.main.id}"
-
-  tags = {
-    Name = "DB SG"
-  }
-}
 
 # Define SSH key pair for our instances
 resource "aws_key_pair" "default" {
-  key_name = "vpctestkeypair"
+  key_name = "terraform"
   public_key = "${file("${var.key_path}")}"
 }
 
@@ -183,7 +158,7 @@ resource "aws_elb" "app" {
   /* Requiered for EC2 ELB only
     availability_zones = "${var.zones}"
   */
-  name            = "test-elb"
+  name            = "ELB"
   subnets         = ["${aws_subnet.public-subnet.id}"]
   security_groups = ["${aws_security_group.sgweb.id}"]
   listener {
@@ -210,19 +185,13 @@ resource "aws_elb" "app" {
 }
 
 resource "aws_security_group" "elb" {
-    name = "test-elb"
+    name = "ELB"
     ingress {
         from_port   = 80
         to_port     = 80
         protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
-    }
-    ingress {
-        from_port   = 443
-        to_port     = 443
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
+    }    
     egress {
         from_port   = 0
         to_port     = 0
@@ -231,6 +200,6 @@ resource "aws_security_group" "elb" {
     }
     vpc_id = "${aws_vpc.main.id}"
     tags = {
-        Name        = "test-elb-security-group"
+        Name        = "ELB_Security_Group"
     }
 }
