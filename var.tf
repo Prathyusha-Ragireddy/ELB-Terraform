@@ -1,6 +1,16 @@
 variable "aws_region" {
   description = "Region for the VPC"
-  default = "us-east-1"
+  default = "us-east-2"
+}
+
+variable "public_subnet_az" {
+  description = "AZ for the VPC"
+  default = "us-east-2a"
+}
+
+variable "private_subnet_az" {
+  description = "AZ for the VPC"
+  default = "us-east-2b"
 }
 
 variable "vpc_cidr" {
@@ -20,7 +30,7 @@ variable "private_subnet_cidr" {
 
 variable "ami" {
   description = "Ubuntu Server 18.04 LTS"
-  default = "ami-0cc96feef8c6bbff3"
+  default = "ami-02f706d959cedf892"
 }
 
 variable "key_path" {
